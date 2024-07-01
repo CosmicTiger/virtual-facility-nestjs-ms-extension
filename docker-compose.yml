@@ -14,6 +14,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflows
+      - NATS_URL=nats://nats:4222
     volumes:        
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
@@ -23,6 +24,7 @@ services:
       - ./apps/workflows-service:/usr/src/app/apps/workflows-service
     depends_on:
       - workflows-db
+      - nats
   workflows-db:
     image: postgres:13.2-alpine
     environment:
@@ -35,7 +37,7 @@ services:
       dockerfile: ./Dockerfile
       args:
         - APP_NAME=virtual-facility
-    command: pnpm run start:dev -- virtual-facility
+    command: pnpm run start:dev -- virtual-facility-nestjs-ms-extension
     ports:
       - 3000:3000
     environment:
@@ -44,19 +46,23 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=virtual-facility
+      - NATS_URL=nats://nats:4222
     volumes:        
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json    
       - ./pnpm-lock.yaml:/usr/src/app/pnpm-lock.yaml
       - ./tsconfig.json:/usr/src/app/tsconfig.json   
       - ./node_modules:/usr/src/app/node_modules
-      - ./apps/virtual-facility:/usr/src/app/apps/virtual-facility
+      - ./apps/virtual-facility-nestjs-ms-extension:/usr/src/app/apps/virtual-facility-nestjs-ms-extension
     depends_on:
       - virtual-facility-db
       - workflows-service
+      - nats
   virtual-facility-db:
     image: postgres:13.2-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=virtual-facility
+  nats:
+      image: nats:2.2.2-alpine
