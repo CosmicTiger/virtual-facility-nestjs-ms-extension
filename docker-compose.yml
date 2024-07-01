@@ -23,8 +23,11 @@ services:
       - ./pnpm-lock.yaml:/usr/src/app/pnpm-lock.yaml
       - ./tsconfig.json:/usr/src/app/tsconfig.json
       - ./node_modules:/usr/src/app/node_modules
+      # Note: This is usually not a good practice to mount the "node_modules" directory on the host to the container       # We are doing this for the sake of simplicity in this example       - ./node_modules:/usr/src/app/node_modules
+      # This instructs Docker Compose to mount the "workflows-service" directory on the host to the "/usr/src/app" directory on the container
+      # This allows us to make changes to the code on the host and have them reflected in the container without having to rebuild the image
       - ./apps/workflows-service:/usr/src/app/apps/workflows-service
-    depends_on:
+    depends_on: # This instructs Docker Compose to start the "workflows-db" container before starting the "workflows-service" container
       - workflows-db
       - nats
   workflows-db:
@@ -55,6 +58,7 @@ services:
       - ./pnpm-lock.yaml:/usr/src/app/pnpm-lock.yaml
       - ./tsconfig.json:/usr/src/app/tsconfig.json   
       - ./node_modules:/usr/src/app/node_modules
+      # Note: This is usually not a good practice to mount the "node_modules" directory on the host to the container       # We are doing this for the sake of simplicity in this example       - ./node_modules:/usr/src/app/node_modules
       - ./apps/virtual-facility-nestjs-ms-extension:/usr/src/app/apps/virtual-facility-nestjs-ms-extension
     depends_on:
       - virtual-facility-db
@@ -68,3 +72,37 @@ services:
       - POSTGRES_DB=virtual-facility
   nats:
       image: nats:2.2.2-alpine
+  alarms-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=alarms-service
+    command: npm run start:dev -- alarms-service
+    environment:
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      # Note: This is usually not a good practice to mount the "node_modules" directory on the host to the container       # We are doing this for the sake of simplicity in this example       - ./node_modules:/usr/src/app/node_modules
+      - ./apps/alarms-service:/usr/src/app/apps/alarms-service
+    depends_on:
+      - nats
+  alarms-generator:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=alarms-generator
+    command: npm run start:dev -- alarms-generator
+    environment:
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      # Note: This is usually not a good practice to mount the "node_modules" directory on the host to the container       # We are doing this for the sake of simplicity in this example       - ./node_modules:/usr/src/app/node_modules
+      - ./apps/alarms-generator:/usr/src/app/apps/alarms-generator
+    depends_on:
+      - nats
