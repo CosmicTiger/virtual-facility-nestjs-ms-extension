@@ -15,6 +15,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflows
       - NATS_URL=nats://nats:4222
+    deploy:
+      replicas: 3 # This instructs Docker Compose to start 3 instances of the workflows-service container
     volumes:        
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
