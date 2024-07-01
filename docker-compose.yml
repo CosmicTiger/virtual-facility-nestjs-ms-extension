@@ -15,6 +15,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflows
       - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     deploy:
       replicas: 3 # This instructs Docker Compose to start 3 instances of the workflows-service container
     volumes:        
@@ -30,6 +31,7 @@ services:
     depends_on: # This instructs Docker Compose to start the "workflows-db" container before starting the "workflows-service" container
       - workflows-db
       - nats
+      - rabbitmq
   workflows-db:
     image: postgres:13.2-alpine
     environment:
@@ -52,6 +54,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=virtual-facility
       - NATS_URL=nats://nats:4222
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     volumes:        
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json    
@@ -64,6 +67,7 @@ services:
       - virtual-facility-db
       - workflows-service
       - nats
+      - rabbitmq
   virtual-facility-db:
     image: postgres:13.2-alpine
     environment:
@@ -140,3 +144,5 @@ services:
       - ./apps/notifications-service:/usr/src/app/apps/notifications-service
     depends_on:
       - nats
+  rabbitmq:
+    image: rabbitmq:3.8.9-management-alpine
