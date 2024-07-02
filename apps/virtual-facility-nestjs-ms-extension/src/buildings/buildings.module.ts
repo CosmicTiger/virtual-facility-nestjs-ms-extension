@@ -16,6 +16,8 @@ import { WORKFLOWS_SERVICE } from '../constants';
         options: {
           urls: [process.env.RABBITMQ_URL],
           queue: 'workflows-service',
+          persistent: true,
+          prefetchCount: 1,
         },
       },
     ]),

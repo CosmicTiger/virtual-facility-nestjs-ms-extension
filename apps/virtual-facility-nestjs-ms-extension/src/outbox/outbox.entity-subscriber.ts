@@ -23,6 +23,7 @@ export class OutboxEntitySubscriber
   }
 
   async afterInsert(event: InsertEvent<Outbox>) {
+    console.log('[OutboxEntitySubscriber] afterInsert', event.entity);
     await this.outboxProcessor.dispatchWorkflowEvent(event.entity);
     await event.manager.delete(Outbox, event.entity.id);
   }

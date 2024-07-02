@@ -34,6 +34,7 @@ export class OutboxProcessor {
       target: WORKFLOWS_SERVICE.description,
       take: 100,
     });
+    console.log('[processOutboxMessages] messages', messages);
     await Promise.all(
       messages.map(async (message) => {
         await this.dispatchWorkflowEvent(message);

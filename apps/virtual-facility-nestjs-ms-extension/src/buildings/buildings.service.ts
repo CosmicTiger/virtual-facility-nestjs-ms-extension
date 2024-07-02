@@ -49,7 +49,7 @@ export class BuildingsService {
       await outboxRepository.save({
         type: 'workflows.create',
         payload: {
-          name: 'My Workflow',
+          name: newBuildingEntity.name || 'My Workflow',
           buildingId: newBuildingEntity.id,
         },
         target: WORKFLOWS_SERVICE.description,
