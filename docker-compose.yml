@@ -15,8 +15,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=workflows
       - RABBITMQ_URL=amqp://rabbitmq:5672
-    deploy:
-      replicas: 3 # This instructs Docker Compose to start 3 instances of the "workflows-service" container
+    # deploy:
+    #   replicas: 3 # This instructs Docker Compose to start 3 instances of the "workflows-service" container
     volumes:        
       - ./libs:/usr/src/app/libs
       - ./package.json:/usr/src/app/package.json
